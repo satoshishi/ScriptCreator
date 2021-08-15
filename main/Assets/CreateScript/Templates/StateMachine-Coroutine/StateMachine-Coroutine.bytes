@@ -1,0 +1,93 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using StateMachine.Node;
+using StateMachine.Main;
+using System;
+using ZaCo.Core;
+using Binder;
+
+namespace #NAMESPACE#
+{
+    public class #NAME# : MonoBehaviour, IStateMachine<#STATENODE#>, IDataReceiver<Type>
+    {
+        public StateNodeCollections<#STATENODE#> StateNodes { get => stateNodes; }
+        private StateNodeCollections<#STATENODE#> stateNodes = null;
+        private Queue<#STATENODE#> requestQueue = new Queue<#STATENODE#>();
+
+        private #STATENODE# currentStateNode = null;
+        private Coroutine activeLoop = null;
+
+        private ReadonlyZaContainer container;
+
+        [ReceiveZaContainer]
+        public void ReceivedContainer(ReadonlyZaContainer container)
+        {
+            this.container = container;
+        }        
+
+        public void Build(StateNodeCollections<#STATENODE#> stateNode)
+        {
+            this.stateNodes = stateNode;
+
+            activeLoop = StartCoroutine(UpdateStateMachine());
+            GoTo(stateNodes.FirstState);
+        }
+
+        public void GoTo(Type state)
+        {
+            if (currentStateNode != null && state == currentStateNode.GetType())
+                return;
+
+            var next = StateNodes.Get(state);
+
+            if (next != null)
+                requestQueue.Enqueue(next);
+        }
+        public void GoTo<T>() where T : IStateNode => GoTo(typeof(T));
+        public void OnNext(Type value) => GoTo(value);        
+
+        private IEnumerator UpdateStateMachine()
+        {
+            foreach(#STATENODE# state in StateNodes.Collections)
+            {
+                state.Initialize(container);
+                state.AddOnRequestAnyStateListener(this);
+            }                        
+
+            while (true)
+            {
+                if (requestQueue.Count > 0)
+                {
+                    var nextState = requestQueue.Dequeue();
+
+                    if (currentStateNode != null)
+                        currentStateNode.OnExit(nextState);
+
+                    nextState.OnEnter(currentStateNode);
+                    currentStateNode = nextState;
+                }
+
+                if (currentStateNode != null)
+                    currentStateNode.OnUpdate();
+
+                yield return null;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (activeLoop != null)
+                StopCoroutine(activeLoop);
+
+            currentStateNode?.OnExit(currentStateNode);
+            container.Dispose();
+            stateNodes.Dispose();
+            requestQueue.Clear();
+            requestQueue = new Queue<#STATENODE#>();
+
+            currentStateNode = null;
+        }
+
+    }
+}

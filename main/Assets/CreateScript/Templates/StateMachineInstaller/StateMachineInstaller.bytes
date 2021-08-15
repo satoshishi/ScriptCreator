@@ -1,0 +1,34 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using ZaCo.Helper;
+using ZaCo.Core;
+using StateMachine.Main;
+using StateMachine.Node;
+using StateMachine.Context;
+
+namespace #NAMESPACE#
+{
+    public class #NAME# : InstallDecorator
+    {
+        [SerializeField]
+        private #STATEMACHINE# stateMachine;
+        
+        public override ZaContainer Install(ZaContainer container)
+        {
+            var nodes = new StateNodeCollections<#STATENODE#>(
+                new List<#STATENODE#>()
+                {
+                    //regist statenode
+                },
+                typeof(#FIRST_STATENODE#)
+            );
+            var context = new StateMachineContext<#STATENODE#>();
+            context.Replace(stateMachine,nodes);
+
+            container.Register<StateMachineContext<#STATENODE#>>(context);
+
+            return container;
+        }
+    }
+}

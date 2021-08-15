@@ -1,0 +1,19 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace #NAMESPACE#
+{
+    public class #NAME# : #STATENODE#
+    {
+        public override void OnEnter(#STATENODE# from)
+        {
+
+        }
+
+        public override void OnExit(#STATENODE# to)
+        {
+        
+        }
+    }
+}

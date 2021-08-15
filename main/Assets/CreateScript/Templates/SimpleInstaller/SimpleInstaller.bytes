@@ -1,0 +1,16 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using ZaCo.Helper;
+using ZaCo.Core;
+
+namespace #NAMESPACE#
+{
+    public class #NAME# : InstallDecorator
+    {
+        public override ZaContainer Install(ZaContainer container)
+        {
+            return container;
+        }
+    }
+}

@@ -1,0 +1,63 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using ZaCo.Helper;
+using ZaCo.Core;
+using StateMachine.Context;
+using StateMachine.Main;
+using StateMachine.Node;
+using System.Linq;
+using #NAMESPACE_STATENODE#;
+
+namespace #NAMESPACE#
+{
+    public class #NAME# : MonoBehaviour
+    {
+        [SerializeField]
+        private string m_mainSceneName;
+        
+        [SerializeField]
+        private List<string> m_subSceneNames;
+
+        // Start is called before the first frame update
+        IEnumerator Start()
+        {
+            yield return SceneManager.LoadSceneAsync(m_mainSceneName, LoadSceneMode.Additive);
+            var mainScene = SceneManager.GetSceneByName(m_mainSceneName);
+            var installerParent = mainScene.GetRootGameObjects().First(g => g.GetComponent<InstallHelper>() != null).GetComponent<InstallHelper>();
+
+            foreach (string sceneName in m_subSceneNames)
+            {
+                yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+                var subScene = SceneManager.GetSceneByName(sceneName);
+                InstallSubScenes(subScene,installerParent);
+            }
+
+            SceneManager.SetActiveScene(SceneManager.GetSceneByName(m_mainSceneName));
+            installerParent.Handle(OnInstalled);
+        }
+
+        private InstallHelper InstallSubScenes(Scene subScene,InstallHelper root)
+        {
+            var installerChild = subScene.GetRootGameObjects().Length <= 0 ? null : subScene.GetRootGameObjects();
+
+            if (installerChild != null)
+            {
+                foreach (GameObject child in installerChild)
+                {
+                    var installer = child.GetComponents<InstallDecorator>();
+                    if(installer != null) installer.ToList().ForEach(i => root.AddInstaller(i));
+                }
+            }
+
+            return root;
+        }
+
+        public void OnInstalled(ReadonlyZaContainer container)
+        {
+            container.Get<StateMachineContext<#STATENODE#>>().Build();
+            SceneManager.UnloadSceneAsync("Boot");
+        }
+    }
+}
