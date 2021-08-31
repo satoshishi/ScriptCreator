@@ -1,0 +1,78 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System;
+using System.Linq;
+using ZaCo.Helper;
+
+namespace #NAMESPACE#
+{
+    public class UI : MonoBehaviour,IDisposable
+    {
+        public Action OnDispose{get;set;} = null;
+        public virtual void Dispose() => OnDispose?.Invoke();
+    }
+
+    [InstallGameObjectToZaContainer(typeof(UIManager))]
+    public class UIManager : ViewManager<UI,UIManager.Layer>
+    {
+        [SerializeField]
+        private Transform m_frontLayer;
+
+        [SerializeField]
+        private Transform m_centerLayer;
+
+        [SerializeField]
+        private Transform m_rearLayer;
+
+        public enum Layer
+        {
+            Front,
+            Center,
+            Rear
+        }
+
+        public void Awake()
+        {
+            var prefabs = Resources.LoadAll<UI>("UI");
+            ViewPrefabs = prefabs.ToList();
+        }
+
+        public override U GetOrCreate<U>(Layer parameter)
+        {
+            var targetPrefab  = ViewPrefabs.Find(view => view.GetType() == typeof(U));
+            var createdView = CreatedViews.Find(view => view.GetType() == typeof(U));
+
+            if(createdView != null)
+                return (U)(createdView);
+
+            if(targetPrefab == null)
+                return default;
+
+            var layer = parameter == Layer.Front    ?  m_frontLayer     : 
+                        parameter == Layer.Center   ?  m_centerLayer    :
+                                                       m_rearLayer      ;
+
+            var newView = Instantiate(targetPrefab,layer) as U;
+            newView.OnDispose = ()=> Remove<U>();
+
+            CreatedViews.Add(newView);     
+
+            return newView;       
+        }
+
+        /// <summary>
+        /// 生成済みUIのDisposeを呼び出す
+        /// </summary>
+        /// <typeparam name="VIEW"></typeparam>
+        public void CallUIDisposer<VIEW>()
+        {
+            var index = CreatedViews.FindIndex(view => view.GetType() == typeof(VIEW));
+
+            if (index >= 0)
+            {
+                CreatedViews[index].Dispose();
+            }
+        }
+    }
+}
