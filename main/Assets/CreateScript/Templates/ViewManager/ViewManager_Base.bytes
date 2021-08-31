@@ -1,0 +1,42 @@
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System;
+
+namespace #NAMESPACE#
+{
+    public abstract class #NAME#<T, P> : MonoBehaviour where T : MonoBehaviour
+    {
+        [SerializeField]
+        protected List<T> ViewPrefabs = new List<T>();
+
+        [SerializeField]
+        protected List<T> CreatedViews = new List<T>();
+
+        public abstract VIEW GetOrCreate<VIEW>(P parameter) where VIEW : T;
+
+        public virtual void Remove<VIEW>() where VIEW : T
+        {
+            var index = CreatedViews.FindIndex(view => view.GetType() == typeof(VIEW));
+
+            if (index >= 0)
+            {
+                Destroy(CreatedViews[index].gameObject);
+                CreatedViews.RemoveAt(index);
+            }
+        }
+
+        public virtual void RemoveAll()
+        {
+            foreach(T view in CreatedViews)
+            {
+                Destroy(view.gameObject);
+                CreatedViews.Remove(view);                
+            }
+
+            CreatedViews = new List<T>();
+        }
+
+    }
+}
