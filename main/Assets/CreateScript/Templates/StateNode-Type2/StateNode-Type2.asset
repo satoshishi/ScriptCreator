@@ -20,5 +20,5 @@ MonoBehaviour:
     ReplaceKeyValuesPair:
     - key: '#NAMESPACE#'
       value: 
-    - key: '#STATENODE#'
+    - key: '#STATE_NODE#'
       value: 

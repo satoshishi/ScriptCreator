@@ -20,3 +20,7 @@ MonoBehaviour:
     ReplaceKeyValuesPair:
     - key: '#NAMESPACE#'
       value: 
+    - key: '#STATE_PARAMETER#'
+      value: 
+    - key: '#CHANGE_STATE_PARAMETER#'
+      value: 

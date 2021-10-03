@@ -22,7 +22,9 @@ MonoBehaviour:
       value: 
     - key: '#STATEMACHINE#'
       value: 
-    - key: '#STATENODE#'
+    - key: '#STATE_PARAMETER#'
       value: 
-    - key: '#FIRST_STATENODE#'
+    - key: '#CHANGE_STATE_PARAMETER#'
+      value: 
+    - key: '#TRANSLATOR#'
       value: 

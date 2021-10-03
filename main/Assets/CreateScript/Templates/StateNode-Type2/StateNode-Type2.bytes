@@ -1,19 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using StateMachine;
 
 namespace #NAMESPACE#
 {
-    public class #NAME# : #STATENODE#
+    public class #NAME# : #STATE_NODE#
     {
-        public override void OnEnter(#STATENODE# from)
+        protected override void OnInitialize()
+        {
+
+        }
+        public override void OnEnter(IStateNode previsouState)
         {
 
         }
 
-        public override void OnExit(#STATENODE# to)
+        public override void OnUpdate()
         {
-        
+
+        }
+
+        public override void OnExit(IStateNode nextState)
+        {
+
         }
     }
 }
