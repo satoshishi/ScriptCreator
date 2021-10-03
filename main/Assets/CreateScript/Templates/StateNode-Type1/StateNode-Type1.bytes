@@ -1,39 +1,69 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using StateMachine.Node;
-using ZaCo.Core;
-using Binder;
 using System;
+using UnityEngine;
+using StateMachine;
 
 namespace #NAMESPACE#
 {
-    public abstract class #NAME# : IStateNode
+    public abstract class #NAME# : IStateNode<#STATE_PARAMETER#, #CHANGE_STATE_PARAMETER#>
     {
-        protected ReadonlyZaContainer Container{get;private set;}
+        private #STATE_PARAMETER# parameter;
+        public #STATE_PARAMETER# Parameter { get => parameter; }
 
-        private DataBinder<Type> OnRequestAnyState = new DataBinder<Type>();
-        public void AddOnRequestAnyStateListener(IDataReceiver<Type> listener) => OnRequestAnyState.Subscribe(listener);
-        public void GoTo<T>() => OnRequestAnyState.Value = typeof(T);        
+        private StateMachineService<#STATE_PARAMETER#, #CHANGE_STATE_PARAMETER#> stateMachine;
+        public StateMachineService<#STATE_PARAMETER#, #CHANGE_STATE_PARAMETER#> StateMachine { get => stateMachine; }
 
-        public virtual void Initialize(ReadonlyZaContainer container)
+        public void Initialize(#STATE_PARAMETER# parameter, StateMachineService<#STATE_PARAMETER#, #CHANGE_STATE_PARAMETER#> stateMachine)
         {
-            Container = container;
-        }        
+            this.parameter = parameter;
+            this.stateMachine = stateMachine;
 
-        public abstract void OnEnter(#NAME# from);
+            OnInitialize();
+        }
 
+        protected virtual void OnInitialize()
+        {
+
+        }
+
+        /// <summary>
+        /// 別のStateに遷移する
+        /// </summary>
+        /// <param name="parameter"></param>
+        public void ChangeState(#CHANGE_STATE_PARAMETER# parameter)
+        {
+            stateMachine.ChangeState(parameter);
+        }
+        /*
+        public void ChangeState<PARAMETER>()
+        {
+            ChangeState(typeof(PARAMETER));
+        }*/
+
+        /// <summary>
+        /// このState遷移時に呼び出される
+        /// </summary>
+        /// <param name="parameter"></param>
+        public abstract void OnEnter(IStateNode previsouState);
+
+        /// <summary>
+        /// このStateに遷移している間、毎フレーム呼び出される
+        /// </summary>
         public virtual void OnUpdate()
         {
 
         }
 
-        public abstract void OnExit(#NAME# to);
+        /// <summary>
+        /// このStateを抜ける際に呼びだされる 
+        /// </summary>
+        /// <param name="nextState"></param>
+        public abstract void OnExit(IStateNode nextState);
 
         public virtual void Dispose()
-        {         
-            Container.Dispose();
-            OnRequestAnyState.Dispose();    
+        {
+
         }
     }
 }
